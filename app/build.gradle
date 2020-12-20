@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -14,7 +15,7 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
-
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -36,13 +37,13 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-//        useIR = true
+        useIR = true
     }
 
-//    composeOptions {
-//        kotlinCompilerVersion '1.4.10'
-//        kotlinCompilerExtensionVersion '0.1.0-dev16'
-//    }
+    composeOptions {
+        kotlinCompilerVersion kotlin_version
+        kotlinCompilerExtensionVersion compose_version
+    }
 }
 
 dependencies {
@@ -52,19 +53,36 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
-    implementation 'androidx.compose.ui:ui:1.0.0-alpha09'
-    // Tooling support (Previews, etc.)
-    implementation 'androidx.ui:ui-tooling:1.0.0-alpha07'
-    // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation 'androidx.compose.foundation:foundation:1.0.0-alpha09'
-    // Material Design
-    implementation 'androidx.compose.material:material:1.0.0-alpha09'
-    // Material design icons
-    implementation 'androidx.compose.material:material-icons-core:1.0.0-alpha09'
-    implementation 'androidx.compose.material:material-icons-extended:1.0.0-alpha09'
-    // Integration with observables
-    implementation 'androidx.compose.runtime:runtime-livedata:1.0.0-alpha09'
-    implementation 'androidx.compose.runtime:runtime-rxjava2:1.0.0-alpha09'
+//    implementation 'androidx.compose.ui:ui:1.0.0-alpha09'
+//    // Tooling support (Previews, etc.)
+//    implementation 'androidx.ui:ui-tooling:1.0.0-alpha07'
+//    // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
+//    implementation 'androidx.compose.foundation:foundation:1.0.0-alpha09'
+//    // Material Design
+//    implementation 'androidx.compose.material:material:1.0.0-alpha09'
+//    // Material design icons
+//    implementation 'androidx.compose.material:material-icons-core:1.0.0-alpha09'
+//    implementation 'androidx.compose.material:material-icons-extended:1.0.0-alpha09'
+//    // Integration with observables
+//    implementation 'androidx.compose.runtime:runtime-livedata:1.0.0-alpha09'
+//    implementation 'androidx.compose.runtime:runtime-rxjava2:1.0.0-alpha09'
+
+    implementation "androidx.compose.runtime:runtime:$compose_version"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.foundation:foundation-layout:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation "androidx.compose.animation:animation:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+
+    implementation 'androidx.appcompat:appcompat:1.3.0-alpha02'
+    implementation 'androidx.activity:activity-ktx:1.1.0'
+    implementation 'androidx.core:core-ktx:1.5.0-alpha05'
+
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.0-rc01"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0-rc01"
 
     // UI Tests
     androidTestImplementation 'androidx.ui:ui-test:1.0.0-alpha07'
@@ -72,4 +90,18 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        // Treat all Kotlin warnings as errors
+        allWarningsAsErrors = true
+        freeCompilerArgs += '-Xopt-in=kotlin.RequiresOptIn'
+        // Enable experimental coroutines APIs, including Flow
+        freeCompilerArgs += '-Xopt-in=kotlin.Experimental'
+        freeCompilerArgs += '-Xallow-jvm-ir-dependencies'
+
+        // Set JVM target to 1.8
+        jvmTarget = "1.8"
+    }
 }

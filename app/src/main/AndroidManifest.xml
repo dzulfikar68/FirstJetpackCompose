@@ -9,13 +9,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FirstJetpackCompose">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Part9A">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Part9B" />
+        <activity android:name=".Part8" />
+        <activity android:name=".Part7" />
+        <activity android:name=".Part6" />
+        <activity android:name=".Part5" />
+        <activity android:name=".Part4" />
+        <activity android:name=".Part3" />
+        <activity android:name=".Part2" />
+        <activity android:name=".Part1" />
     </application>
 
 </manifest>

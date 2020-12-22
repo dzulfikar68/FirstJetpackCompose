@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyRowFor
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,329 +39,117 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        const val KEY_FULLNAME = "fullname"
+        const val KEY_NICKNAME = "nickname"
+        const val KEY_BIODATA = "biodata"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                NewsStory()
-                Toast.makeText(baseContext, "Author: $", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-    }
+                supportActionBar?.hide()
 
-    @Composable
-    private fun NewsStory() {
-        val image = vectorResource(id = R.drawable.ic_launcher_background)
-        ScrollableColumn {
-            Column (
-                modifier = Modifier.padding(16.dp).align(alignment = Alignment.CenterHorizontally)
-            ) {
-                val imageModifier = Modifier
-                    .preferredHeight(180.dp)
-                    .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(4.dp))
-                Image(image, modifier = imageModifier,
-                    contentScale = ContentScale.Crop)
-
-                DropdownDemo()
-
-                Spacer(Modifier.preferredHeight(16.dp))
-                Text("A day wandering through the sandhills in Shark Fin Cove, and a few of the sights I saw",
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis)
-                Text("Davenport, California")
-                Text("Desember 2018")
-
-                IconButton(onClick = { onBackPressed() }) {
-                    Image(imageVector = vectorResource(id = R.drawable.ic_android_black_24dp))
-                }
-
-                Button(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .preferredHeight(36.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    onClick = {
-                        onBackPressed()
-                    }
-                ) {
-                    Text(
-                        stringResource(id = R.string.app_name),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-
-                LazyRow {
-                    items(items = (1..10).toList(), itemContent = {
-//                        Text(text = "Item $it")
-                        ViewItem(itemText = "Item $it")
-                    })
-                }
-
-//            val ll = listOf("X","Y","Z")
-//            MyLazyColumn(listItems = ll)
-
-                val text = remember { mutableStateOf(TextFieldValue("Text")) }
-                OutlinedTextField(value = text.value,
-                    onValueChange = { text.value = it },
-                    label = { Text("Test") })
-
-                SimpleRadioButtonComponent()
-
-                ColoredCheckboxComponent()
-                SimpleSnackbarComponent()
-
-                val cpVisibleState = remember { mutableStateOf(true) }
-                if (cpVisibleState.value) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(16.dp),
-                        color = Color.Green
-                    )
-                }
-
-                val items = listOf("A", "B", "C", "D", "E", "F")
-                val blogList = remember { mutableStateOf(items) }
-                for (blog in blogList.value) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth().clickable(onClick = {
-                            cpVisibleState.value = false
-                        }),
-                        color = Color.Red
-                    )
-                }
-
-                SwitchDemo()
-
-                BorderedCardComponent()
-
-                AlertDialogComponent()
-
-                MySliderDemo()
-            }
-        }
-
-    }
-
-    @Composable
-    fun AlertDialogComponent() {
-        val openDialog = remember { mutableStateOf(true) }
-        if (openDialog.value) {
-            AlertDialog(
-                onDismissRequest = { openDialog.value = false },
-                title = { Text(text = "Alert Dialog") },
-                text = { Text("Hello! I am an Alert Dialog") },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            openDialog.value = false
-                            /* Do some other action */
+                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalDrawerLayout(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        Column {
+                            Text(
+                                text = "Hello Dunia!",
+                                modifier = Modifier.padding(8.dp),
+                                style = TextStyle(
+                                    fontSize = 24.sp, color = Color.Black
+                                )
+                            )
+                            Button(onClick = {
+                                drawerState.close()
+                            }) {
+                                Text(text = "Tutup Drawer")
+                            }
                         }
-                    ) {
-                        Text("Confirm")
+                    },
+                    bodyContent = {
+                        ListItemAtlit()
                     }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            openDialog.value = false
-                            /* Do some other action */
-                        }
-                    ) {
-                        Text("Dismiss")
-                    }
-                },
-                backgroundColor = Color.Black,
-                contentColor = Color.White
-            )
-        }
-    }
-
-    @Composable
-    fun BorderedCardComponent() {
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            backgroundColor = Color(0xFFFFA867.toInt()),
-            border = BorderStroke(width = 1.dp, brush = SolidColor(Color.Green)),
-            modifier = Modifier.padding(16.dp).fillMaxWidth().clickable(onClick = {
-                Toast.makeText(baseContext, "Thanks for clicking!", Toast.LENGTH_SHORT).show()
-            })
-        ) {
-            Text(
-                text = "Bordered Card",
-                textAlign = TextAlign.Center,
-                style = TextStyle(
-                    fontSize = 16.sp,
-//                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-    }
-
-    @Composable
-    fun MySliderDemo() {
-        val sliderPosition = remember { mutableStateOf(0f) }
-        Text(text = sliderPosition.value.toString())
-        Slider(value = sliderPosition.value, onValueChange = { sliderPosition.value = it })
-    }
-
-    @Composable
-    fun ModalDrawerLayoutSample() {
-        val drawerState = rememberDrawerState(DrawerValue.Closed)
-
-        ModalDrawerLayout(
-            drawerState = drawerState,
-            drawerContent = {
-                Column {
-                    Text("Text in Drawer")
-                    Button(onClick = { drawerState.close() }) {
-                        Text("Close Drawer")
-                    }
-                }
-            },
-            bodyContent = {
-                Column {
-                    Text("Text in Bodycontext")
-                    Button(onClick = { drawerState.open() }) {
-                        Text("Click to open")
-                    }
-                }
+                )
             }
+        }
+    }
+
+    val listAtlit = listOf(
+        mapOf(
+            KEY_FULLNAME to "Cristiano Ronaldo",
+            KEY_NICKNAME to "CR7",
+            KEY_BIODATA to "Cristiano Ronaldo lahir di Funchal, Madeira, Portugal pada 5 Pebruari 1985. Pemain bernama lengkap Cristiano Ronaldo dos Santos Aveiro itu memegang rekor sebagai pemain termahal di dunia ketika ditransfer Real Madrid dari Manchester United pada musim panas 2009 senilai 132 juta dolar atau lebih dari 1,3 triliun rupiah."
+        ),
+        mapOf(
+            KEY_FULLNAME to "Valentino Rossi",
+            KEY_NICKNAME to "the doctor",
+            KEY_BIODATA to "Nama Valentino Rossi memang sungguh besar di ajang MotoGP dunia. Disebut – sebut bahwa Valentino Rossi merupakan salah satu pembalap terbaik sepanjang masa. Ia adalah salah satu pembalap tersukses sepanjang masa yang sudah menyabet 10 gelar juara MotoGP dunia. Masing – masing gelar tersebut terbagi menjadi 7 gelar juara dunia di kelas puncak MotoGP, dua gelar juara dunia di kelas 250 cc dan juara dunia di kelas 125 cc."
+        ),
+        mapOf(
+            KEY_FULLNAME to "Khabib Nurmagomedov",
+            KEY_NICKNAME to "The Eagle",
+            KEY_BIODATA to "Khabib adalah seniman bela diri campuran profesional Rusia keturunan etnis Avar. Nurmagomedov adalah Juara Dunia Combat Sambo dan dua kali Juara UFC kelas ringan. Dia saat ini memegang rekor tak terkalahkan terpanjang di MMA, dengan 29 kemenangan, dan tetap tak terkalahkan dalam MMA profesional. Ia berasal dari wilayah Dagestan Rusia, dan merupakan orang Rusia pertama dan Muslim pertama yang memenangkan gelar UFC. Pertarungan terbesarnya dengan Conor McGregor di UFC 229 menarik 2,4 juta Bayar-per-tayang , yang paling banyak untuk acara MMA. Per 2 Januari 2019, dia berada di peringkat ke-3 UFC pound-for-pound ."
         )
-    }
+    )
 
     @Composable
-    fun SimpleSnackbarComponent() {
-        val snackbarVisibleState = remember { mutableStateOf(false) }
-
-        Button(onClick = { snackbarVisibleState.value = !snackbarVisibleState.value }) {
-            if (snackbarVisibleState.value) {
-                Text("Hide Snackbar")
-            } else {
-                Text("Show Snackbar")
-            }
-        }
-        if (snackbarVisibleState.value) {
-            Snackbar(
-                text = { Text(text = "This is a snackbar!") },
-                action = {
-                    Button(onClick = {}) {
-                        Text("MyAction")
-                    }
-                },
-                modifier = Modifier.padding(8.dp)
-            )
-        }
-    }
-
-    @Composable
-    fun DropdownDemo() {
-        val items = listOf("A", "B", "C", "D", "E", "F")
-        val showMenu = remember { mutableStateOf( false ) }
-        val selectedIndex = remember { mutableStateOf(0) }
-
-        DropdownMenu(
-            toggle = {
-                Text(items[selectedIndex.value], modifier = Modifier.fillMaxWidth().padding(16.dp))
-            },
-            expanded = showMenu.value,
-            onDismissRequest = { showMenu.value = false },
-            toggleModifier = Modifier.fillMaxWidth().background(Color.Gray).clickable(onClick = { showMenu.value = true }),
-            dropdownModifier = Modifier.fillMaxWidth().background(Color.White)
-        ) {
-            items.forEachIndexed { index, string ->
-                DropdownMenuItem(
-                    enabled = true,
-                    onClick = {
-                        selectedIndex.value = index
-                        showMenu.value = false
-                    }
-                ) {
-                    Text(text = string)
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun SwitchDemo() {
-        val checkedState = remember { mutableStateOf(true) }
-
-        Switch(
-            checked = checkedState.value,
-            onCheckedChange = { checkedState.value = it }
-        )
-    }
-
-    @Composable
-    fun ColoredCheckboxComponent() {
-        val checkedState = remember { mutableStateOf(true) }
-
-        Row {
-            Checkbox(
-                checked = checkedState.value,
-                modifier = Modifier.padding(16.dp),
-                onCheckedChange = { checkedState.value = it }
-            )
-            Text(text = "Checkbox Example with color", modifier = Modifier.padding(16.dp))
-        }
-    }
-
-    @Composable
-    fun SimpleRadioButtonComponent() {
-        val radioOptions = listOf("MindOrks", "AfterAcademy", "CuriousJr")
-        val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[2]) }
-
-        Column {
-            radioOptions.forEach { text ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = (text == selectedOption),
-                            onClick = { onOptionSelected(text) }
+    private fun ListItemAtlit() {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Text(text = "List Biodata Atlit")
+            Spacer(modifier = Modifier.preferredHeight(10.dp))
+            LazyColumn {
+                items(
+                    items = listAtlit,
+                    itemContent = { item ->
+                        ViewItem(
+                            fullname = item[KEY_FULLNAME] ?: "-",
+                            nickname = item[KEY_NICKNAME] ?: "-",
+                            biodata = item[KEY_BIODATA] ?: "-"
                         )
-                        .padding(horizontal = 16.dp)
-                ) {
-                    RadioButton(
-                        selected = (text == selectedOption),
-                        onClick = { onOptionSelected(text) }
-                    )
-                    Text(
-                        text = text,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
+                    }
+                )
             }
         }
     }
 
     @Composable
-    fun ViewItem(
-            itemText: String
+    private fun ViewItem(
+        fullname: String,
+        nickname: String,
+        biodata: String
     ) {
         Card(
-                shape = RoundedCornerShape(4.dp),
-                backgroundColor = Color(0xFFCCCCCC),
-            modifier = Modifier.clickable(onClick = {
-                startActivity(Intent(baseContext, MainActivity::class.java))
+            shape = RoundedCornerShape(5.dp),
+            backgroundColor = MaterialTheme.colors.surface,
+            elevation = 5.dp,
+            modifier = Modifier.padding(5.dp).clickable(onClick = {
+                startActivity(
+                    Intent(baseContext, DetailActivity::class.java)
+                        .putExtra(KEY_FULLNAME, fullname)
+                        .putExtra(KEY_NICKNAME, nickname)
+                        .putExtra(KEY_BIODATA, biodata)
+                )
             })
         ) {
-            Row {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                        text = itemText,
-                        modifier = Modifier.padding(8.dp),
-                        style = TextStyle(
-                                fontSize = 24.sp, color = Color.Red),
-                        textAlign = TextAlign.Center
+                    text = fullname,
+                    modifier = Modifier.padding(8.dp),
+                    style = TextStyle(
+                        fontSize = 24.sp, color = Color.Blue
+                    )
                 )
                 Text(
-                        text = itemText,
-                        modifier = Modifier.padding(8.dp),
-                        style = TextStyle(
-                                fontSize = 24.sp, color = Color.Black),
-                        textAlign = TextAlign.Center
+                    text = "($nickname)",
+                    modifier = Modifier.padding(8.dp),
+                    style = TextStyle(
+                        fontSize = 24.sp, color = Color.Red
+                    )
                 )
             }
         }
